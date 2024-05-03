@@ -1,0 +1,7 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^7.0",
+        "shawm11/hawk-auth": "^1.0",
+        "monolog/monolog": "^3.3"
+    }
+}

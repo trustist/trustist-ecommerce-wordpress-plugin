@@ -7,6 +7,8 @@ jQuery(document).ready(function ($) {
     // Retrieve the price from the data attribute
     var price = $(this).data("price");
     var returnUrl = $(this).data("return-url");
+    var orderNumber = $(this).data("order-number");
+    var test = $(this).data("test");
 
     // AJAX request to server
     $.ajax({
@@ -16,6 +18,8 @@ jQuery(document).ready(function ($) {
         action: "process_payment",
         price,
         returnUrl,
+        orderNumber,
+        test
       },
       success: function (response) {
         window.location.href = response.data.paylink;

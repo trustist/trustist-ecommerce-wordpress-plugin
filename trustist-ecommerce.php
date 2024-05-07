@@ -9,7 +9,7 @@ Author URI: https://www.trustist.com
 */
 defined( 'ABSPATH' ) or die();
 
-\define('TRUSTISTPLUGIN_VERSION', '0.1.0');
+\define('TRUSTISTPLUGIN_VERSION', '0.2.0');
 \define('TRUSTISTPLUGIN_FILE', __FILE__);
 \define('TRUSTISTPLUGIN_HOOK', plugin_basename(TRUSTISTPLUGIN_FILE));
 \define('TRUSTISTPLUGIN_PATH', realpath(plugin_dir_path(TRUSTISTPLUGIN_FILE)).'/');

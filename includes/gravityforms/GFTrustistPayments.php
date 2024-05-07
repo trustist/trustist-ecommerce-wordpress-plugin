@@ -42,6 +42,11 @@ class GFTrustistPayments extends GFPaymentAddOn
         return self::$_instance;
     }
 
+    public function note_avatar()
+    {
+        return TRUSTISTPLUGIN_URL . 'img/Trustist-star-icon-150x150.png';
+    }
+
     /* ADMIN FUNCTIONS */
     public function init_admin()
     {

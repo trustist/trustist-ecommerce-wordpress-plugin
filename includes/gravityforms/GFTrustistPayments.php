@@ -173,13 +173,18 @@ class GFTrustistPayments extends GFPaymentAddOn
             $this->fulfill_order($entry, $payment_transaction, $payment_amount);
         }
 
-        GFAPI::update_entry($entry);		
-        GFFormsModel::add_note( $entry['id'], $user_id, $user_name, sprintf( 
-            esc_html__( 'Payment information was manually updated. Status: %s. Amount: %s. Transaction ID: %s. Date: %s', 'gravityformspaypal' ), 
-            $entry['payment_status'], 
-            GFCommon::to_money( $entry['payment_amount'], $entry['currency'] ), 
-            $payment_transaction, 
-            $entry['payment_date'] ) 
+        GFAPI::update_entry($entry);
+        GFFormsModel::add_note(
+            $entry['id'],
+            $user_id,
+            $user_name,
+            sprintf(
+                esc_html__('Payment information was manually updated. Status: %s. Amount: %s. Transaction ID: %s. Date: %s', 'gravityformspaypal'),
+                $entry['payment_status'],
+                GFCommon::to_money($entry['payment_amount'], $entry['currency']),
+                $payment_transaction,
+                $entry['payment_date']
+            )
         );
     }
 
@@ -919,7 +924,8 @@ class GFTrustistPayments extends GFPaymentAddOn
                 $payment_id = gform_get_meta($entry_id, 'trustist_payment_id');
 
                 // get the payment details from the Trustist server
-                try {
+                try 
+                {
                     $is_testmode = !empty($feed['meta']['test_mode']) && 1 === (int) $feed['meta']['test_mode'] ? true : false;
 
                     switch ($feed['meta']['transactionType']) {
@@ -935,7 +941,11 @@ class GFTrustistPayments extends GFPaymentAddOn
                     }
 
                     $this->log_debug(__METHOD__ . "(): Transaction verified. " . print_r($payment, 1));
-                } catch (\Exception $e) {
+
+                    $payment_reference = $payment["id"];
+                } 
+                catch (\Exception $e) 
+                {
                     $this->log_error(__METHOD__ . "(): Transaction could not be verified. Reason: " . $e->getMessage());
 
                     return new WP_Error('transaction_verification', $e->getMessage());
@@ -949,16 +959,14 @@ class GFTrustistPayments extends GFPaymentAddOn
                     GFAPI::update_entry_property($entry['id'], 'payment_status', 'Failed');
 
                     $note = "Trustist payment failed\n";
-                    $note .= 'Transaction ID: ' . $payment['id'] . "\n";
+                    $note .= 'Transaction ID: ' . $payment_reference . "\n";
 
+                    $retry_link = trustist_payment_payer_url($payment_reference, $is_testmode);
                     if (!empty($retry_link)) {
                         $note .= 'Retry link: ' . $retry_link . "\n";
                     }
 
-                    if (!empty($status_link)) {
-                        $note .= 'Status link: ' . $status_link . "\n";
-                    }
-
+                    $this->log_debug(__METHOD__ . "(): Adding note: " . $note);
                     $this->add_note($entry['id'], $note, 'error');
 
                     return false;
@@ -968,19 +976,15 @@ class GFTrustistPayments extends GFPaymentAddOn
                 GFAPI::update_entry_property($entry['id'], 'payment_status', 'Paid');
 
                 $note = "Trustist payment successful\n";
-                $note .= 'Transaction ID: ' . $payment['id'] . "\n";
+                $note .= 'Transaction ID: ' . $payment_reference . "\n";
 
+                $receipt_link = trustist_payment_receipt_url($payment_reference, $is_testmode);
                 if (!empty($receipt_link)) {
                     $note .= 'Receipt link: ' . $receipt_link . "\n";
                 }
 
-                if (!empty($status_link)) {
-                    $note .= 'Status link: ' . $status_link . "\n";
-                }
-
+                $this->log_debug(__METHOD__ . "(): Adding note: " . $note);
                 $this->add_note($entry['id'], $note);
-
-                // $this->fulfill_order($entry, $payment['id'], $payment['amount']);
 
                 if (!class_exists('GFFormDisplay')) {
                     require_once(GFCommon::get_base_path() . '/form_display.php');

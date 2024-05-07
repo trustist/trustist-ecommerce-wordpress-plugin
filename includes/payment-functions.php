@@ -4,9 +4,6 @@ use Shawm11\Hawk\Client\Client as HawkClient;
 use Shawm11\Hawk\Client\ClientException as HawkClientException;
 
 $client = new Client();
-// [
-//     'base_uri' => $base_uri,
-// ]);
 
 function trustist_payment_create_hawk_client()
 {
@@ -62,6 +59,18 @@ function trustist_payment_send_request($method, $url, $payload = null, $test = f
     ]);
 
     return json_decode($response->getBody(), true);
+}
+
+function trustist_payment_payer_url($paymentId, $test = false)
+{
+    $url = $test === true ? 'https://payer-sandbox.trustisttransfer.com' : 'https://payer.trustistecommerce.com';
+    return $url . "/pay/{$paymentId}";
+}
+
+function trustist_payment_receipt_url($paymentId, $test = false)
+{
+    $url = $test === true ? 'https://payer-sandbox.trustisttransfer.com' : 'https://payer.trustistecommerce.com';
+    return $url . "/receipt/{$paymentId}";
 }
 
 function trustist_payment_create_payment(PaymentRequest $request, $test = false)

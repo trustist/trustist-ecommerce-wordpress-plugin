@@ -306,7 +306,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         //     'type' => 'custom',
         // ];
 
-        // $default_settings = $this->add_field_after('billingInformation', $fields, $default_settings);
+        $default_settings = $this->add_field_after('billingInformation', $fields, $default_settings);
         $billing_info = parent::get_field('billingInformation', $default_settings);
         $dt = $billing_info['field_map'];
 

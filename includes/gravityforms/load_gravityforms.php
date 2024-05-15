@@ -1,4 +1,4 @@
-<?php 
+<?php
 defined('ABSPATH') || exit;
 
 final class TrustistPaymentsGFM
@@ -6,9 +6,11 @@ final class TrustistPaymentsGFM
     public static function register_admin_hooks()
     {
         add_action('gform_loaded', function () {
-            GFForms::include_payment_addon_framework();
-            require_once __DIR__.'/GFTrustistPayments.php';
-            GFAddOn::register('GFTrustistPayments');
+            if (class_exists('GFFormDisplay')) {
+                GFForms::include_payment_addon_framework();
+                require_once __DIR__ . '/GFTrustistPayments.php';
+                GFAddOn::register('GFTrustistPayments');
+            }
         });
     }
 

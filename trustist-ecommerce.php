@@ -10,6 +10,8 @@ Author URI: https://www.trustist.com
 defined( 'ABSPATH' ) or die();
 
 \define('TRUSTISTPLUGIN_VERSION', '0.2.0');
+\define('TRUSTISTPLUGIN_SLUG', 'trustistecommerce');
+\define('TRUSTISTPLUGIN_NAME', 'TrustistEcommerce');
 \define('TRUSTISTPLUGIN_FILE', __FILE__);
 \define('TRUSTISTPLUGIN_HOOK', plugin_basename(TRUSTISTPLUGIN_FILE));
 \define('TRUSTISTPLUGIN_PATH', realpath(plugin_dir_path(TRUSTISTPLUGIN_FILE)).'/');
@@ -28,5 +30,8 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/shortcodes/load_shortcodes.
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/gravityforms/load_gravityforms.php';
 TrustistPaymentsGFM::attach();
+
+require_once plugin_dir_path( __FILE__ ) . 'includes/woocommerce/load_woocommerce.php';
+TrustistPaymentsWooCommerce::attach();
 
 ?>

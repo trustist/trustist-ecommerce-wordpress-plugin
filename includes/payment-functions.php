@@ -36,8 +36,6 @@ function trustist_payment_send_request($method, $url, $payload = null, $test = f
         'ext' => null,
     ];
 
-    trustist_payment_write_log($options);
-
     if ($payload !== null) {
         $options['contentType'] = 'application/json';
         $options['payload'] = wp_json_encode($payload);
@@ -98,6 +96,12 @@ function trustist_payment_get_payment($paymentId, $test = false)
 function trustist_payment_get_subscription($subscriptionId, $test = false)
 {
     $url = "/v1/standingorders/{$subscriptionId}";
+    return trustist_payment_send_request('GET', $url, null, $test);
+}
+
+function trustist_payment_get_merchant($test = false)
+{
+    $url = '/v1/merchants';
     return trustist_payment_send_request('GET', $url, null, $test);
 }
 

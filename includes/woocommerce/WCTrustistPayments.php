@@ -26,7 +26,7 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
 
         $testmode = 'yes' === $this->settings['testmode'];
         $cards_enabled = $testmode ? get_option("trustist_payments_sandbox_cards_enabled") : get_option("trustist_payments_cards_enabled");
-        $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? '\img\Trustist-all-payment-methods-24h.png' : '\img\Trustist-star-icon-150x150.png');
+        $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods.png' : 'img/Trustist-star-icon-150x150.png');
         $this->icon = apply_filters('woocommerce_gateway_icon', $icon);
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -166,27 +166,29 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
         $order = wc_get_order($order_id);
 
         if ($order->has_status('completed') || $order->has_status('processing')) {
-            return;
+            $redirect_checkout = $this->get_return_url($order);
         }
 
-        $payment_id = $order->get_meta('payment_id');
-        $payment = trustist_payment_get_payment($payment_id, $this->is_testmode());
+        if (empty($redirect_checkout)) {
+            $payment_id = $order->get_meta('payment_id');
+            $payment = trustist_payment_get_payment($payment_id, $this->is_testmode());
 
-        if ($payment['status'] === 'COMPLETE') {
-            $order->payment_complete();
-            $order->add_order_note(
-                'Payment completed successfully. Payment ID: ' . $payment["id"]
-            );
+            if ($payment['status'] === 'COMPLETE') {
+                $order->payment_complete();
+                $order->add_order_note(
+                    'Payment completed successfully. Payment ID: ' . $payment["id"]
+                );
 
-            // Remove cart
-            $woocommerce->cart->empty_cart();
-            $redirect_checkout = $this->get_return_url($order);
-        } else {
-            // $order->update_status('failed');
-            // $order->add_order_note(
-            //     'Payment failed. Payment ID: ' . $payment["id"]
-            // );
-            $redirect_checkout = $this->checkout_url();
+                // Remove cart
+                $woocommerce->cart->empty_cart();
+                $redirect_checkout = $this->get_return_url($order);
+            } else {
+                // $order->update_status('failed');
+                // $order->add_order_note(
+                //     'Payment failed. Payment ID: ' . $payment["id"]
+                // );
+                $redirect_checkout = $this->checkout_url();
+            }
         }
 
         header('HTTP/1.1 200 OK');
@@ -213,7 +215,7 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
     {
         return 'yes' === (string) $this->get_option('testmode') ? true : false;
     }
-    
+
     private function checkout_url()
     {
         return \function_exists('wc_get_checkout_url') ? esc_url(wc_get_checkout_url()) : esc_url($GLOBALS['woocommerce']->cart->get_checkout_url());

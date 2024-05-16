@@ -51,14 +51,29 @@ function trustist_payments_test_callback()
     $merchant_name = get_option('trustist_payments_merchant_name');
     $last_updated = get_option('trustist_payments_last_updated');
 ?>
-    <p style="font-size: 1.2em;">Connection status: <?= $connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></p>
-
-    <?php if ($connection_success) { ?>
-        <p style="font-size: 1.2em;">Merchant name: <?= $merchant_name ?></p>
-        <p style="font-size: 1.2em;">Last updated: <?= $last_updated ? date('H:i:s d/m/Y', $last_updated) : '' ?></p>
-        <p style="font-size: 1.2em;">Cards enabled: <?= $cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></p>
-    <?php
-    }
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th scope="row">Connection status</th>
+                <td><?= $connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
+            </tr>
+            <tr>
+                <th scope="row">Last updated</th>
+                <td><?= $last_updated ? date('H:i:s d/m/Y', $last_updated) : '' ?></td>
+            </tr>
+            <?php if ($connection_success) { ?>
+                <tr>
+                    <th scope="row">Merchant name</th>
+                    <td><?= $merchant_name ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">Cards enabled</th>
+                    <td><?= $cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+<?php
 }
 
 function trustist_payments_sandbox_test_callback()
@@ -67,15 +82,30 @@ function trustist_payments_sandbox_test_callback()
     $sandbox_cards_enabled = get_option('trustist_payments_sandbox_cards_enabled');
     $sandbox_merchant_name = get_option('trustist_payments_sandbox_merchant_name');
     $sandbox_last_updated = get_option('trustist_payments_sandbox_last_updated');
-    ?>
-    <p style="font-size: 1.2em;">Connection status: <?= $sandbox_connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></p>
-
-    <?php if ($sandbox_connection_success) { ?>
-        <p style="font-size: 1.2em;">Merchant name: <?= $sandbox_merchant_name ?></p>
-        <p style="font-size: 1.2em;">Last updated: <?= $sandbox_last_updated ? date('H:i:s d/m/Y', $sandbox_last_updated) : '' ?></p>
-        <p style="font-size: 1.2em;">Cards enabled: <?= $sandbox_cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></p>
-    <?php
-    }
+?>
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th scope="row">Connection status</th>
+                <td><?= $sandbox_connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
+            </tr>
+            <tr>
+                <th scope="row">Last updated</th>
+                <td><?= $sandbox_last_updated ? date('H:i:s d/m/Y', $sandbox_last_updated) : '' ?></td>
+            </tr>
+            <?php if ($sandbox_connection_success) { ?>
+                <tr>
+                    <th scope="row">Merchant name</th>
+                    <td><?= $sandbox_merchant_name ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">Cards enabled</th>
+                    <td><?= $sandbox_cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+<?php
 }
 
 // Callback function for the sandbox public key field

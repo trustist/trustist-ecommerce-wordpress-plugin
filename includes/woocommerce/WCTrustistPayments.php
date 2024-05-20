@@ -26,7 +26,7 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
 
         $testmode = 'yes' === $this->settings['testmode'];
         $cards_enabled = $testmode ? get_option("trustist_payments_sandbox_cards_enabled") : get_option("trustist_payments_cards_enabled");
-        $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods.png' : 'img/Trustist-star-icon-150x150.png');
+        $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods_full.png' : 'img/Trustist-star-icon-150x150.png');
         $this->icon = apply_filters('woocommerce_gateway_icon', $icon);
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));

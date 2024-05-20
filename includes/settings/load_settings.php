@@ -154,7 +154,7 @@ function trustist_payments_settings_page()
             //submit_button();
             ?>
             <p class="submit">
-                <input type="submit" name="submit" id="submit" class="button button-primary tr-button-primary" value="Save Changes">
+                <input type="submit" name="submit" id="submit" class="button button-primary tr-button-primary" value="Save Changes & Test Connection">
             </p>
         </form>
     </div>
@@ -191,7 +191,7 @@ function trustist_payments_settings_page()
 add_action('admin_init', 'trustist_payments_register_settings');
 add_action('admin_menu', 'trustist_payments_add_settings_page');
 
-function my_updated_option_function($option, $old_value, $new_value)
+function api_keys_updated($option)
 {
     trustist_payment_write_log($option . ' updated');
 
@@ -268,5 +268,6 @@ function my_updated_option_function($option, $old_value, $new_value)
     }
 }
 
-add_action('updated_option', 'my_updated_option_function', 10, 3);
+add_action('added_option', 'api_keys_updated', 10, 3);
+add_action('updated_option', 'api_keys_updated', 10, 3);
 ?>

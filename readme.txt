@@ -28,3 +28,17 @@ For more information, please visit our website: [TrustistEcommerce.com](https://
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Configure the plugin settings with your TrustistEcommerce API keys.
 4. Start accepting payments and managing subscriptions with TrustistEcommerce.
+
+== Changelog ==
+
+= 0.0.0 =
+- Initial build with simple payment button shortcodes
+
+= 0.1.0 =
+- Gravity Forms integration added
+
+= 0.2.0 =
+- WooCommerce integration added
+
+= 0.2.1 =
+- Settings screen bug fix when initiating test call

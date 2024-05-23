@@ -30,8 +30,15 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
         $this->icon = apply_filters('woocommerce_gateway_icon', $icon);
 
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-        //add_action('woocommerce_wc_gateway_trustistecommerce_process_response', [&$this, 'process_response']);
         add_action('woocommerce_api_' . $this->id, array($this, 'process_response'));
+
+        // if (class_exists('WC_Subscriptions_Order')) {
+        //     // Subscriptions
+        //     add_action('woocommerce_scheduled_subscription_payment_' . $this->id, array(
+        //         $this,
+        //         'scheduled_subscription_payment'
+        //     ), 10, 2);
+        // }
     }
 
     // Initialize settings fields
@@ -81,7 +88,7 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
             return false;
         }
 
-        // return true;
+        return true;
     }
 
     // Process payment
@@ -138,6 +145,11 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
                     'correlation_id' => $e->getResponse()->getHeaderLine('CorrelationId'),
                     'message' => $e->getMessage()
                 )
+            );
+
+            return array(
+                'result'          => 'failure',
+                'redirect'     => $this->checkout_url(),
             );
         }
 
@@ -197,18 +209,73 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
         exit;
     }
 
-    // // Display payment fields during checkout
-    // public function payment_fields()
+    // /**
+    //  * Handle scheduled subscription payments
+    //  *
+    //  * @param mixed $amount_to_charge
+    //  * @param WC_Order $renewal_order
+    //  */
+    // public function scheduled_subscription_payment($amount_to_charge, $renewal_order)
     // {
-    //     // Display payment fields such as credit card info or other required info
-    //     // ...
+    //     $subscription     = WCTrustistSubscriptionHelper::get_subscriptions_for_renewal_order($renewal_order);
+    //     $result           = $this->process_subscription_payment($amount_to_charge, $renewal_order, $subscription);
+    //     $renewal_order_id = $renewal_order->get_id();
+
+    //     if (is_wp_error($result)) {
+    //         $message = sprintf(__('Subscription could not be authorized for renewal order # %s - %s', $this->id), $renewal_order_id, $result->get_error_message($this->id));
+    //         $renewal_order->update_status('failed', $message);
+    //         wc_get_logger()->debug($message);
+    //     }
     // }
 
-    // // Validate payment fields
-    // public function validate_fields()
+    // /**
+    //  * Process a subscription renewal
+    //  *
+    //  * @param mixed $amount
+    //  * @param WC_Order $renewal_order
+    //  * @param WC_Subscription $subscription
+    //  */
+    // public function process_subscription_payment($amount, $renewal_order, $subscription)
     // {
-    //     // Validate payment fields submitted by the customer
-    //     // ...
+    //     try {
+    //         $renewal_order_id = $renewal_order->get_id();
+    //         $startDate = $renewal_order->get_date('start'); // or next_payment?
+    //         $billing_cycle_type = $subscription->get_billing_period();
+    //         $recurring_times = $subscription->get_interval();
+    //         $buyer_name = $renewal_order->get_billing_first_name() . ' ' . $renewal_order->get_billing_last_name();
+
+    //         if ('' == get_option('permalink_structure')) {
+    //             $redirect_url = get_site_url() . '/?wc-api=trustistecommerce_payment_gateway&order_id=' . $renewal_order_id;
+    //         } else {
+    //             $redirect_url = get_site_url() . '/wc-api/trustistecommerce_payment_gateway/?order_id=' . $renewal_order_id;
+    //         }
+
+    //         $standingOrderRequest = new StandingOrderRequest(
+    //             $amount,
+    //             $renewal_order_id,
+    //             'Order #' . $renewal_order_id,
+    //             $billing_cycle_type,
+    //             gmdate('Y-m-d', strtotime($startDate)),
+    //             $recurring_times,
+    //             $buyer_name,
+    //             null,
+    //             $redirect_url
+    //         );
+
+    //         wc_get_logger()->debug(__METHOD__ . '(): Standing order request => ' . print_r($standingOrderRequest, true));
+
+    //         // create the subscription
+    //         $payment = trustist_payment_create_subscription($standingOrderRequest, $this->is_testmode());
+
+    //         // Add order note
+    //         $message = sprintf(__('Subscription was authorized for order %s with transaction id %s', $this->id), $renewal_order_id, $payment['id']);
+    //         $renewal_order->add_order_note($message);
+    //         $subscription->add_order_note($message);
+
+    //         return true;
+    //     } catch (Exception $ex) {
+    //         return new WP_Error($this->id, $ex->getMessage());
+    //     }
     // }
 
     private function is_testmode()
@@ -221,4 +288,3 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
         return \function_exists('wc_get_checkout_url') ? esc_url(wc_get_checkout_url()) : esc_url($GLOBALS['woocommerce']->cart->get_checkout_url());
     }
 }
-?>

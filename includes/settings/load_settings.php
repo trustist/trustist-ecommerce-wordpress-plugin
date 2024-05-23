@@ -216,18 +216,23 @@ function api_keys_updated($option)
             $cards_enabled = $merchant['paymentMethods']['ryft']['enabled'];
             $cards_available = $merchant['paymentMethods']['ryft']['available'];
             $cards_setting = $cards_enabled === true && $cards_available === true;
+            $ob_enabled = $merchant['paymentMethods']['tokenIo']['enabled'];
+            $so_monitored = $merchant['paymentMethods']['tokenIo']['standingOrdersMonitored'];
+            $so_setting = $ob_enabled === true && $so_monitored === true;
 
             trustist_payment_write_log('Merchant found: ' . $merchant_name);
 
             update_option('trustist_payments_merchant_name', $merchant_name);
             update_option('trustist_payments_connection_success', true);
             update_option('trustist_payments_cards_enabled', $cards_setting);
+            update_option('trustist_payments_standing_orders_enabled', $so_setting);
         } else {
             trustist_payment_write_log('Merchant not found');
 
             update_option('trustist_payments_connection_success', false);
             update_option('trustist_payments_cards_enabled', false);
             update_option('trustist_payments_merchant_name', '');
+            update_option('trustist_payments_standing_orders_enabled', false);
         }
     }
 
@@ -252,18 +257,23 @@ function api_keys_updated($option)
             $cards_enabled = $merchant['paymentMethods']['ryft']['enabled'];
             $cards_available = $merchant['paymentMethods']['ryft']['available'];
             $cards_setting = $cards_enabled === true && $cards_available === true;
+            $ob_enabled = $merchant['paymentMethods']['tokenIo']['enabled'];
+            $so_monitored = $merchant['paymentMethods']['tokenIo']['standingOrdersMonitored'];
+            $so_setting = $ob_enabled === true && $so_monitored === true;
 
             trustist_payment_write_log('Merchant found: ' . $merchant_name);
 
             update_option('trustist_payments_sandbox_merchant_name', $merchant_name);
             update_option('trustist_payments_sandbox_connection_success', true);
             update_option('trustist_payments_sandbox_cards_enabled', $cards_setting);
+            update_option('trustist_payments_sandbox_standing_orders_enabled', $so_setting);
         } else {
             trustist_payment_write_log('Merchant not found');
 
             update_option('trustist_payments_sandbox_connection_success', false);
             update_option('trustist_payments_sandbox_cards_enabled', false);
             update_option('trustist_payments_sandbox_merchant_name', '');
+            update_option('trustist_payments_sandbox_standing_orders_enabled', false);
         }
     }
 }

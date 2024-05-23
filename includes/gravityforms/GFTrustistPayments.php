@@ -170,7 +170,6 @@ class GFTrustistPayments extends GFPaymentAddOn
             $action['entry_id'] = $entry['id'];
 
             $this->complete_payment($entry, $action);
-            $this->fulfill_order($entry, $payment_transaction, $payment_amount);
         }
 
         GFAPI::update_entry($entry);
@@ -209,33 +208,6 @@ class GFTrustistPayments extends GFPaymentAddOn
 
         return true;
     }
-
-    public function fulfill_order(&$entry, $transaction_id, $amount, $feed = null)
-    {
-        if (!$feed) {
-            $feed = $this->get_payment_feed($entry);
-        }
-
-        $form = GFFormsModel::get_form_meta($entry['form_id']);
-
-        if (rgars($feed, 'meta/delayPost')) {
-            $this->log_debug(__METHOD__ . '(): Creating post.');
-            $entry['post_id'] = GFFormsModel::create_post($form, $entry);
-            $this->log_debug(__METHOD__ . '(): Post created.');
-        }
-
-        if (rgars($feed, 'meta/delayNotification')) {
-            $notifications = $this->get_notifications_to_send($form, $feed);
-            GFCommon::send_notifications($notifications, $form, $entry, true, 'form_submission');
-        }
-
-        do_action('gform_trustist_fulfillment', $entry, $feed, $transaction_id, $amount);
-        if (has_filter('gform_trustist_fulfillment')) {
-            $this->log_debug(__METHOD__ . '(): Executing functions hooked to gform_trustist_fulfillment.');
-        }
-
-        $this->log_debug(__METHOD__ . "(): Order fulfilled. ");
-    }
     /* END ADMIN FUNCTIONS */
 
     /* FEED SETTINGS */
@@ -271,40 +243,6 @@ class GFTrustistPayments extends GFPaymentAddOn
                 'tooltip' => '<h6>' . esc_html__('Cancel URL', 'trustistgfm') . '</h6>' . esc_html__('Return to this URL if payment failed. Leave blank for default.', 'trustistgfm'),
             ],
         ];
-
-        // if ($this->get_setting('delayNotification') || !$this->is_gravityforms_supported('1.9.12')) {
-        //     $fields[] = [
-        //         'name' => 'notifications',
-        //         'label' => esc_html__('Notifications', 'trustistgfm'),
-        //         'type' => 'notifications',
-        //         'tooltip' => '<h6>' . esc_html__('Notifications', 'trustistgfm') . '</h6>' . esc_html__("Enable this option if you would like to only send out this form's notifications for the 'Form is submitted' event after payment has been received. Leaving this option disabled will send these notifications immediately after the form is submitted. Notifications which are configured for other events will not be affected by this option.", 'trustistgfm'),
-        //     ];
-        // }
-
-        $form = $this->get_current_form();
-        // if (GFCommon::has_post_field($form['fields'])) {
-        //     $post_settings = [
-        //         'name' => 'post_checkboxes',
-        //         'label' => esc_html__('Posts', 'trustistgfm'),
-        //         'type' => 'checkbox',
-        //         'tooltip' => '<h6>' . esc_html__('Posts', 'trustistgfm') . '</h6>' . esc_html__('Enable this option if you would like to only create the post after payment has been received.', 'trustistgfm'),
-        //         'choices' => [
-        //             [
-        //                 'label' => esc_html__('Create post only when payment is received.', 'trustistgfm'),
-        //                 'name' => 'delayPost',
-        //             ],
-        //         ],
-        //     ];
-
-        //     $fields[] = $post_settings;
-        // }
-
-        // // gform_trustist_add_option_group
-        // $fields[] = [
-        //     'name' => 'custom_options',
-        //     'label' => '',
-        //     'type' => 'custom',
-        // ];
 
         $default_settings = $this->add_field_after('billingInformation', $fields, $default_settings);
         $billing_info = parent::get_field('billingInformation', $default_settings);
@@ -356,6 +294,7 @@ class GFTrustistPayments extends GFPaymentAddOn
             }
         }
 
+        $form = $this->get_current_form();
         return apply_filters('gform_trustist_feed_settings_fields', $default_settings, $form);
     }
 
@@ -539,67 +478,6 @@ class GFTrustistPayments extends GFPaymentAddOn
     /* END FEED SETTINGS */
 
     /* ENTRY CREATION */
-    public function init_frontend()
-    {
-        parent::init_frontend();
-
-        add_filter('gform_disable_post_creation', [$this, 'frontend_disable_post_creation'], 10, 3);
-        add_filter('gform_disable_notification', [$this, 'frontend_disable_notification'], 10, 4);
-        // add_filter('gform_submit_button', [$this, 'frontend_submit_button'], 10, 2);
-
-        add_filter(
-            'gform_form_args',
-            function ($args) {
-                $args['ajax'] = false;
-
-                return $args;
-            },
-            \PHP_INT_MAX
-        );
-    }
-
-    public function frontend_disable_post_creation($is_disabled, $form, $entry)
-    {
-        $feed = $this->get_payment_feed($entry);
-        $submission_data = $this->get_submission_data($feed, $form, $entry);
-
-        if (!$feed || empty($submission_data['payment_amount'])) {
-            return $is_disabled;
-        }
-
-        return !rgempty('delayPost', $feed['meta']);
-    }
-
-    public function frontend_disable_notification($is_disabled, $notification, $form, $entry)
-    {
-        if ('form_submission' != rgar($notification, 'event')) {
-            return $is_disabled;
-        }
-
-        $feed = $this->get_payment_feed($entry);
-        $submission_data = $this->get_submission_data($feed, $form, $entry);
-
-        if (!$feed || empty($submission_data['payment_amount'])) {
-            return $is_disabled;
-        }
-
-        $selected_notifications = \is_array(rgar($feed['meta'], 'selectedNotifications')) ? rgar($feed['meta'], 'selectedNotifications') : [];
-
-        return isset($feed['meta']['delayNotification']) && \in_array($notification['id'], $selected_notifications) ? true : $is_disabled;
-    }
-
-    // public function frontend_submit_button($button, $form)
-    // {
-    //     $html = '';
-
-    //     $title = !empty($feed_meta['payment_header']) ? $feed_meta['payment_header'] : esc_html__('Pay with Trustist', 'trustistgfm');
-    //     $html = '<div class="gform_body spgfmbody">';
-    //     $html .= '<label class="gfield_label" for="buyer_bank_code">' . $title . '</label>';
-
-    //     $html .= '</div>';
-
-    //     return $html . $button;
-    // }
 
     // Override this method to specify a URL to the third party payment processor
     public function redirect_url($feed, $submission_data, $form, $entry)
@@ -737,9 +615,6 @@ class GFTrustistPayments extends GFPaymentAddOn
             'complete_payment' => esc_html__('Payment Completed', 'trustistgfm'),
             'fail_payment' => esc_html__('Payment Failed', 'trustistgfm'),
             'create_subscription'       => esc_html__('Subscription Created', 'trustistgfm'),
-            'cancel_subscription'       => esc_html__('Subscription Canceled', 'trustistgfm'),
-            'add_subscription_payment'  => esc_html__('Subscription Payment Added', 'trustistgfm'),
-            'fail_subscription_payment' => esc_html__('Subscription Payment Failed', 'trustistgfm'),
         ];
     }
 
@@ -835,25 +710,7 @@ class GFTrustistPayments extends GFPaymentAddOn
             return false;
         }
 
-        //$query_string         = '';
         $payment_amount       = rgar($submission_data, 'payment_amount');
-        //$setup_fee            = rgar($submission_data, 'setup_fee');
-        $trial_enabled        = rgar($feed['meta'], 'trial_enabled');
-        // $recurring_field      = rgar($submission_data, 'payment_amount'); //will be field id or the text 'form_total'
-        // $product_index        = 1;
-        // $shipping             = '';
-        // $discount_amt         = 0;
-        // $cmd                  = '_xclick-subscriptions';
-        // $extra_qs             = '';
-        $name_without_options = '';
-
-        $trial = '';
-        //see if a trial exists
-        if ($trial_enabled) {
-            $trial_amount        = rgar($submission_data, 'trial') ? rgar($submission_data, 'trial') : 0;
-            $trial_period_number = rgar($feed['meta'], 'trialPeriod_length');
-            $trial_period_type   = rgar($feed['meta'], 'trialPeriod_unit');
-        }
 
         //check for recurring times
         $recurring_times = rgar($feed['meta'], 'recurringTimes') ? rgar($feed['meta'], 'recurringTimes') : '';
@@ -924,8 +781,7 @@ class GFTrustistPayments extends GFPaymentAddOn
                 $payment_id = gform_get_meta($entry_id, 'trustist_payment_id');
 
                 // get the payment details from the Trustist server
-                try 
-                {
+                try {
                     $is_testmode = !empty($feed['meta']['test_mode']) && 1 === (int) $feed['meta']['test_mode'] ? true : false;
 
                     switch ($feed['meta']['transactionType']) {
@@ -943,9 +799,7 @@ class GFTrustistPayments extends GFPaymentAddOn
                     $this->log_debug(__METHOD__ . "(): Transaction verified. " . print_r($payment, 1));
 
                     $payment_reference = $payment["id"];
-                } 
-                catch (\Exception $e) 
-                {
+                } catch (\Exception $e) {
                     $this->log_error(__METHOD__ . "(): Transaction could not be verified. Reason: " . $e->getMessage());
 
                     return new WP_Error('transaction_verification', $e->getMessage());
@@ -956,8 +810,6 @@ class GFTrustistPayments extends GFPaymentAddOn
                     // Charge Failed
                     $this->log_error(__METHOD__ . "(): Transaction verification failed Reason: " . $payment->message);
 
-                    GFAPI::update_entry_property($entry['id'], 'payment_status', 'Failed');
-
                     $note = "Trustist payment failed\n";
                     $note .= 'Transaction ID: ' . $payment_reference . "\n";
 
@@ -967,24 +819,39 @@ class GFTrustistPayments extends GFPaymentAddOn
                     }
 
                     $this->log_debug(__METHOD__ . "(): Adding note: " . $note);
-                    $this->add_note($entry['id'], $note, 'error');
 
-                    return false;
+                    $action['note'] = $note;
+                    $action['type'] = 'fail_payment';
+
+                    $this->fail_payment($entry, $note);
+                } else {
+                    // payment successful
+                    $note = "Trustist payment successful\n";
+                    $note .= 'Transaction ID: ' . $payment_reference . "\n";
+
+                    $receipt_link = trustist_payment_receipt_url($payment_reference, $is_testmode);
+                    if (!empty($receipt_link)) {
+                        $note .= 'Receipt link: ' . $receipt_link . "\n";
+                    }
+
+                    $this->log_debug(__METHOD__ . "(): Adding note: " . $note);
+
+                    $action['note'] = $note;
+                    $action['transaction_id'] = $payment_reference;
+                    $action['amount'] = $payment['amount'];
+                    $action['payment_date'] = gmdate('y-m-d H:i:s');
+                    $action['payment_method'] = 'TrustistEcommerce';
+                    $action['type'] = 'complete_payment';
+
+                    $this->complete_payment($entry, $action);
+
+                    if ($feed['meta']['transactionType'] === 'subscription') {
+                        $action['subscription_id'] = $payment_reference;
+                        $action['type'] = 'create_subscription';
+
+                        $this->start_subscription($entry, $action);
+                    }
                 }
-
-                // payment success
-                GFAPI::update_entry_property($entry['id'], 'payment_status', 'Paid');
-
-                $note = "Trustist payment successful\n";
-                $note .= 'Transaction ID: ' . $payment_reference . "\n";
-
-                $receipt_link = trustist_payment_receipt_url($payment_reference, $is_testmode);
-                if (!empty($receipt_link)) {
-                    $note .= 'Receipt link: ' . $receipt_link . "\n";
-                }
-
-                $this->log_debug(__METHOD__ . "(): Adding note: " . $note);
-                $this->add_note($entry['id'], $note);
 
                 if (!class_exists('GFFormDisplay')) {
                     require_once(GFCommon::get_base_path() . '/form_display.php');

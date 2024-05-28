@@ -45,3 +45,6 @@ For more information, please visit our website: [TrustistEcommerce.com](https://
 
 = 0.2.2 =
 - Payment notifications not sending bug fix
+
+= 0.3.0 =
+- WooCommerce subscriptions support added 

@@ -1,5 +1,9 @@
 <?php
 
+defined('ABSPATH') || exit;
+
+require_once plugin_dir_path( __FILE__ ) . 'TrustistPaymentsSettings.php';
+
 // Define a function to register the settings
 function trustist_payments_register_settings()
 {
@@ -46,10 +50,11 @@ function trustist_payments_header_callback()
 
 function trustist_payments_test_callback()
 {
-    $connection_success = get_option('trustist_payments_connection_success');
-    $cards_enabled = get_option('trustist_payments_cards_enabled');
-    $merchant_name = get_option('trustist_payments_merchant_name');
-    $last_updated = get_option('trustist_payments_last_updated');
+    $connection_success = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, false);
+    $cards_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CARDS_ENABLED_KEY, false);
+    $merchant_name = TrustistPaymentsSettings::get(TrustistPaymentsSettings::MERCHANT_NAME_KEY, false);
+    $last_updated = TrustistPaymentsSettings::get(TrustistPaymentsSettings::LAST_UPDATED_KEY, false);
+    $standing_orders_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, false);
 ?>
     <table class="form-table" role="presentation">
         <tbody>
@@ -70,6 +75,10 @@ function trustist_payments_test_callback()
                     <th scope="row">Cards enabled</th>
                     <td><?= $cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
+                <tr>
+                    <th scope="row">Standing orders enabled</th>
+                    <td><?= $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                </tr>
             <?php } ?>
         </tbody>
     </table>
@@ -78,10 +87,11 @@ function trustist_payments_test_callback()
 
 function trustist_payments_sandbox_test_callback()
 {
-    $sandbox_connection_success = get_option('trustist_payments_sandbox_connection_success');
-    $sandbox_cards_enabled = get_option('trustist_payments_sandbox_cards_enabled');
-    $sandbox_merchant_name = get_option('trustist_payments_sandbox_merchant_name');
-    $sandbox_last_updated = get_option('trustist_payments_sandbox_last_updated');
+    $sandbox_connection_success = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, true);
+    $sandbox_cards_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CARDS_ENABLED_KEY, true);
+    $sandbox_merchant_name = TrustistPaymentsSettings::get(TrustistPaymentsSettings::MERCHANT_NAME_KEY, true);
+    $sandbox_last_updated = TrustistPaymentsSettings::get(TrustistPaymentsSettings::LAST_UPDATED_KEY, true);
+    $standing_orders_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, true);
 ?>
     <table class="form-table" role="presentation">
         <tbody>
@@ -101,6 +111,10 @@ function trustist_payments_sandbox_test_callback()
                 <tr>
                     <th scope="row">Cards enabled</th>
                     <td><?= $sandbox_cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                </tr>
+                <tr>
+                    <th scope="row">Standing orders enabled</th>
+                    <td><?= $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
             <?php } ?>
         </tbody>
@@ -195,17 +209,20 @@ function api_keys_updated($option)
 {
     trustist_payment_write_log($option . ' updated');
 
-    if ($option === 'trustist_payments_public_key' || $option === 'trustist_payments_private_key') {
-        update_option('trustist_payments_last_updated', time());
+    if ($option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::PUBLIC_API_KEY_KEY, false) || 
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::PRIVATE_API_KEY_KEY, false)) {
+        TrustistPaymentsSettings::set(TrustistPaymentsSettings::LAST_UPDATED_KEY, time(), false);
 
         try {
             $merchant = trustist_payment_get_merchant();
         } catch (Exception $e) {
             trustist_payment_write_log('Error loading merchant: ' . $e);
 
-            update_option('trustist_payments_connection_success', false);
-            update_option('trustist_payments_cards_enabled', false);
-            update_option('trustist_payments_merchant_name', '');
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, false, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, false, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, '', false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, false, false);
+
             return;
         }
 
@@ -222,31 +239,33 @@ function api_keys_updated($option)
 
             trustist_payment_write_log('Merchant found: ' . $merchant_name);
 
-            update_option('trustist_payments_merchant_name', $merchant_name);
-            update_option('trustist_payments_connection_success', true);
-            update_option('trustist_payments_cards_enabled', $cards_setting);
-            update_option('trustist_payments_standing_orders_enabled', $so_setting);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, $merchant_name, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, true, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, $cards_setting, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, $so_setting, false);
         } else {
             trustist_payment_write_log('Merchant not found');
 
-            update_option('trustist_payments_connection_success', false);
-            update_option('trustist_payments_cards_enabled', false);
-            update_option('trustist_payments_merchant_name', '');
-            update_option('trustist_payments_standing_orders_enabled', false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, false, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, false, false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, '', false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, false, false);
         }
     }
 
-    if ($option === 'trustist_payments_sandbox_public_key' || $option === 'trustist_payments_sandbox_private_key') {
-        update_option('trustist_payments_sandbox_last_updated', time());
+    if ($option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::PUBLIC_API_KEY_KEY, true) || 
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::PRIVATE_API_KEY_KEY, true)) {
+        TrustistPaymentsSettings::set(TrustistPaymentsSettings::LAST_UPDATED_KEY, time(), true);
 
         try {
             $merchant = trustist_payment_get_merchant(true);
         } catch (Exception $e) {
             trustist_payment_write_log('Error loading merchant: ' . $e);
 
-            update_option('trustist_payments_sandbox_connection_success', false);
-            update_option('trustist_payments_sandbox_cards_enabled', false);
-            update_option('trustist_payments_sandbox_merchant_name', '');
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, false, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, false, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, '', true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, false, true);
             return;
         }
 
@@ -263,17 +282,17 @@ function api_keys_updated($option)
 
             trustist_payment_write_log('Merchant found: ' . $merchant_name);
 
-            update_option('trustist_payments_sandbox_merchant_name', $merchant_name);
-            update_option('trustist_payments_sandbox_connection_success', true);
-            update_option('trustist_payments_sandbox_cards_enabled', $cards_setting);
-            update_option('trustist_payments_sandbox_standing_orders_enabled', $so_setting);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, $merchant_name, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, true, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, $cards_setting, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, $so_setting, true);
         } else {
             trustist_payment_write_log('Merchant not found');
 
-            update_option('trustist_payments_sandbox_connection_success', false);
-            update_option('trustist_payments_sandbox_cards_enabled', false);
-            update_option('trustist_payments_sandbox_merchant_name', '');
-            update_option('trustist_payments_sandbox_standing_orders_enabled', false);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CONNECTION_SUCCESS_KEY, false, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::CARDS_ENABLED_KEY, false, true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::MERCHANT_NAME_KEY, '', true);
+            TrustistPaymentsSettings::set(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, false, true);
         }
     }
 }

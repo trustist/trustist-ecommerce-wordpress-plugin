@@ -10,8 +10,10 @@
     "@wordpress/scripts": "^27.8.0"
   },
   "scripts": {
-    "build": "wp-scripts build",
-    "start": "wp-scripts start"
+    "build": "npm run build-products && npm run build-subscriptions",
+    "start": "wp-scripts start",
+    "build-products": "wp-scripts build --webpack-src-dir=src/products --output-path=build/products",
+    "build-subscriptions": "wp-scripts build --webpack-src-dir=src/subscriptions --output-path=build/subscriptions"
   },
   "author": "",
   "license": "ISC"

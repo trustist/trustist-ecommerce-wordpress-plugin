@@ -21,21 +21,7 @@ class WC_TrustistEcommerce_Blocks_Support extends AbstractPaymentMethodType
 
     public function get_payment_method_script_handles()
     {
-        // wp_register_script(
-        //     'wc-trustistecommerce-blocks-integration',
-        //     plugin_dir_url(__DIR__) . 'woocommerce/build/index.js',
-        // 	array(
-        // 		'wc-blocks-registry',
-        // 		'wc-settings',
-        // 		'wp-element',
-        // 		'wp-html-entities',
-        // 	),
-        //     filemtime(plugin_dir_path(__DIR__) . 'woocommerce/build/index.js'),
-        //     true
-        // );
-        // return ['wc-trustistecommerce-blocks-integration'];
-
-        $asset_path   = plugin_dir_path(__DIR__) . 'woocommerce/build/index.asset.php';
+        $asset_path   = plugin_dir_path(__DIR__) . 'woocommerce/build/products/index.asset.php';
         $version      = null;
         $dependencies = array();
         if (file_exists($asset_path)) {
@@ -45,20 +31,20 @@ class WC_TrustistEcommerce_Blocks_Support extends AbstractPaymentMethodType
         }
 
         wp_register_script(
-            'wc-misha-blocks-integration',
-            plugin_dir_url(__DIR__) . 'woocommerce/build/index.js',
+            'wc-' . $this->name . '-blocks-integration',
+            plugin_dir_url(__DIR__) . 'woocommerce/build/products/index.js',
             $dependencies,
             $version,
             true
         );
 
-        return array('wc-misha-blocks-integration');
+        return array('wc-' . $this->name . '-blocks-integration');
     }
 
     public function get_payment_method_data()
     {
         $testmode = 'yes' === $this->settings['testmode'];
-        $cards_enabled = $testmode ? get_option("trustist_payments_sandbox_cards_enabled") : get_option("trustist_payments_cards_enabled");
+        $cards_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CARDS_ENABLED_KEY, $testmode);
         $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods_full.png' : 'img/Trustist-star-icon-150x150.png');
 
         return [

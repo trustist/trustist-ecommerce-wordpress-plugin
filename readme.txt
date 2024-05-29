@@ -3,6 +3,7 @@ Contributors: trustist
 Tags: payments, subscriptions, gravityforms, open banking, payment gateway, payment platform
 Requires at least: 5.4
 Tested up to: 6.4
+Stable tag: trunk
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

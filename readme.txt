@@ -3,7 +3,7 @@ Contributors: trustist
 Tags: payments, subscriptions, gravityforms, open banking, payment gateway, payment platform
 Requires at least: 5.4
 Tested up to: 6.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -49,3 +49,6 @@ For more information, please visit our website: [TrustistEcommerce.com](https://
 
 = 0.3.0 =
 - WooCommerce subscriptions support added 
+
+= 0.3.1 =
+- Changes relating to plugin approval process

@@ -60,24 +60,24 @@ function trustist_payments_test_callback()
         <tbody>
             <tr>
                 <th scope="row">Connection status</th>
-                <td><?= $connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
+                <td><? echo $connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
             </tr>
             <tr>
                 <th scope="row">Last updated</th>
-                <td><?= $last_updated ? date('H:i:s d/m/Y', $last_updated) : '' ?></td>
+                <td><? echo $last_updated ? gmdate('H:i:s d/m/Y', $last_updated) : '' ?></td>
             </tr>
             <?php if ($connection_success) { ?>
                 <tr>
                     <th scope="row">Merchant name</th>
-                    <td><?= $merchant_name ?></td>
+                    <td><? echo $merchant_name ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Cards enabled</th>
-                    <td><?= $cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                    <td><? echo $cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Standing orders enabled</th>
-                    <td><?= $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                    <td><? echo $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
             <?php } ?>
         </tbody>
@@ -97,24 +97,24 @@ function trustist_payments_sandbox_test_callback()
         <tbody>
             <tr>
                 <th scope="row">Connection status</th>
-                <td><?= $sandbox_connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
+                <td><? echo $sandbox_connection_success ? '<span style="color: green;">Success</span>' : '<span style="color: red;">Failed</span>' ?></td>
             </tr>
             <tr>
                 <th scope="row">Last updated</th>
-                <td><?= $sandbox_last_updated ? date('H:i:s d/m/Y', $sandbox_last_updated) : '' ?></td>
+                <td><? echo $sandbox_last_updated ? gmdate('H:i:s d/m/Y', $sandbox_last_updated) : '' ?></td>
             </tr>
             <?php if ($sandbox_connection_success) { ?>
                 <tr>
                     <th scope="row">Merchant name</th>
-                    <td><?= $sandbox_merchant_name ?></td>
+                    <td><? echo $sandbox_merchant_name ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Cards enabled</th>
-                    <td><?= $sandbox_cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                    <td><? echo $sandbox_cards_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Standing orders enabled</th>
-                    <td><?= $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
+                    <td><? echo $standing_orders_enabled ? '<span style="color: green;">Yes</span>' : '<span style="color: red;">No</span>' ?></td>
                 </tr>
             <?php } ?>
         </tbody>

@@ -44,7 +44,7 @@ class TrustistEcommerce_WC_Blocks_Support extends AbstractPaymentMethodType
     public function get_payment_method_data()
     {
         $testmode = 'yes' === $this->settings['testmode'];
-        $cards_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::CARDS_ENABLED_KEY, $testmode);
+        $cards_enabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_CARDS_ENABLED_KEY, $testmode);
         $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods_full.png' : 'img/Trustist-star-icon-150x150.png');
 
         return [

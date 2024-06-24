@@ -271,7 +271,7 @@ class TrustistSubscriptions_WC extends WC_Payment_Gateway
     private function subscr_is_active()
     {
         $testmode = $this->get_option('testmode') ? true : false;
-        $standingOrdersEnabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::STANDING_ORDERS_ENABLED_KEY, $testmode, false);
+        $standingOrdersEnabled = TrustistPaymentsSettings::get(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_STANDING_ORDERS_ENABLED_KEY, $testmode, false);
         $subscriptionsInstalled = class_exists('WC_Subscriptions_Order');
 
         return $subscriptionsInstalled && $standingOrdersEnabled;

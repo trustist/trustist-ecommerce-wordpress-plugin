@@ -310,7 +310,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         $html = $this->settings_checkbox($field, false);
 
         if ($echo) {
-            echo $html;
+            echo wp_kses_post($html);
         }
 
         return $html;
@@ -329,7 +329,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         $html = ob_get_clean();
 
         if ($echo) {
-            echo $html;
+            echo wp_kses_post($html);
         }
 
         return $html;
@@ -375,8 +375,8 @@ class GFTrustistPayments extends GFPaymentAddOn
                 foreach ($notifications as $notification) {
             ?>
                     <li class="gf_trustist_notification">
-                        <input type="checkbox" class="notification_checkbox" value="<?php echo $notification['id']; ?>" onclick="SaveNotifications();" <?php checked(true, \in_array($notification['id'], $selected_notifications)); ?> />
-                        <label class="inline" for="gf_trustist_selected_notifications"><?php echo $notification['name']; ?></label>
+                        <input type="checkbox" class="notification_checkbox" value="<?php echo esc_html($notification['id']); ?>" onclick="SaveNotifications();" <?php checked(true, \in_array($notification['id'], $selected_notifications)); ?> />
+                        <label class="inline" for="gf_trustist_selected_notifications"><?php echo esc_html($notification['name']); ?></label>
                     </li>
             <?php
                 }
@@ -387,7 +387,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         $html .= ob_get_clean();
 
         if ($echo) {
-            echo $html;
+            echo wp_kses_post($html);
         }
 
         return $html;

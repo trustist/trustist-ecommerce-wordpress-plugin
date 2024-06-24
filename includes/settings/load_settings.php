@@ -64,12 +64,12 @@ function trustist_payments_test_callback()
             </tr>
             <tr>
                 <th scope="row">Last updated</th>
-                <td><?php echo $last_updated ? gmdate('H:i:s d/m/Y', $last_updated) : '' ?></td>
+                <td><?php echo $last_updated ? esc_html(gmdate('H:i:s d/m/Y', $last_updated)) : ''; ?></td>
             </tr>
             <?php if ($connection_success) { ?>
                 <tr>
                     <th scope="row">Merchant name</th>
-                    <td><?php echo $merchant_name ?></td>
+                    <td><?php echo esc_html($merchant_name) ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Cards enabled</th>
@@ -101,12 +101,12 @@ function trustist_payments_sandbox_test_callback()
             </tr>
             <tr>
                 <th scope="row">Last updated</th>
-                <td><?php echo $sandbox_last_updated ? gmdate('H:i:s d/m/Y', $sandbox_last_updated) : '' ?></td>
+                <td><?php echo $sandbox_last_updated ? esc_html(gmdate('H:i:s d/m/Y', $sandbox_last_updated)) : ''; ?></td>
             </tr>
             <?php if ($sandbox_connection_success) { ?>
                 <tr>
-                    <th scope="row">Merchant name</th>
-                    <td><?php echo $sandbox_merchant_name ?></td>
+                    <th scope="row">Merchant name</th><td>
+                    <?php echo esc_html($sandbox_merchant_name); ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Cards enabled</th>

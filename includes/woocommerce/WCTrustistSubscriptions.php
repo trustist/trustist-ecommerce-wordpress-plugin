@@ -223,7 +223,7 @@ class WC_TrustistSubscriptions extends WC_Payment_Gateway
             $order_id = ''; 
         }
 
-        if ($order_id == 0 || $order_id == '') {
+        if (empty($order_id) || $order_id == 0 || $order_id == '') {
             return;
         }
 

@@ -451,7 +451,7 @@ class GFTrustistPayments extends GFPaymentAddOn
     public function redirect_url($feed, $submission_data, $form, $entry)
     {
         // Don't process redirect url if request is a return
-        if (!rgempty('gf_paystack_return', $_GET)) {
+        if (empty($_GET['gf_paystack_return'])) {
             return false;
         }
 
@@ -541,29 +541,36 @@ class GFTrustistPayments extends GFPaymentAddOn
         // Trim the final string to remove the last space
         return trim($result);
     }
-
     private function return_url($form_id, $entry_id)
     {
         $pageURL = GFCommon::is_ssl() ? 'https://' : 'http://';
-
-        $server_port = apply_filters('gform_trustist_return_url_port', $_SERVER['SERVER_PORT']);
-
+    
+        // Sanitize SERVER_PORT
+        $server_port = apply_filters('gform_trustist_return_url_port', sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT'])));
+    
+        // Sanitize SERVER_NAME
+        $server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : '';
+    
+        // Sanitize REQUEST_URI
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+    
         if ($server_port != '80') {
-            $pageURL .= $_SERVER['SERVER_NAME'] . ':' . $server_port . $_SERVER['REQUEST_URI'];
+            $pageURL .= $server_name . ':' . $server_port . $request_uri;
         } else {
-            $pageURL .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+            $pageURL .= $server_name . $request_uri;
         }
-
+    
         $ids_query = "ids={$form_id}|{$entry_id}";
         $ids_query .= '&hash=' . wp_hash($ids_query);
-
+    
+        // Use add_query_arg to safely add query arguments to the URL
         $url = add_query_arg('gf_tr_return', base64_encode($ids_query), $pageURL);
-
+    
         $query = 'gf_tr_return=' . base64_encode($ids_query);
-
+    
         return apply_filters('gform_trustist_return_url', $url, $form_id, $entry_id, $query);
     }
-
+    
     public function get_payment_feed($entry, $form = false)
     {
         $feed = parent::get_payment_feed($entry, $form);

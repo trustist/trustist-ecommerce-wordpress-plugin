@@ -217,7 +217,11 @@ class WC_TrustistSubscriptions extends WC_Payment_Gateway
     {
         global $woocommerce;
 
-        $order_id = $_GET['order_id'];
+        if (isset($_GET['order_id'])) {
+            $order_id = sanitize_text_field(wp_unslash($_GET['order_id']));
+        } else {
+            $order_id = ''; 
+        }
 
         if ($order_id == 0 || $order_id == '') {
             return;

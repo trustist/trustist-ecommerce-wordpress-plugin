@@ -5,7 +5,7 @@ Requires at least: 5.4
 Tested up to: 6.4
 Stable tag: 0.3.1
 Requires PHP: 7.2
-License: GPLv2 or later
+License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Take Open Banking or credit card payments in the UK using TrustistEcommerce
@@ -22,6 +22,16 @@ Features:
 - Reliable and scalable solution for your business
 
 For more information, please visit our website: [TrustistEcommerce.com](https://www.trustistecommerce.com)
+
+== External Services ==
+
+TrustistEcommerce relies on external Trustist APIs and payment pages for processing payments and managing subscriptions. These will be called when testing settings, when your customers create payments and subscriptions and to read the success or otherwise of these transactions. 
+
+Please note that by using TrustistEcommerce, you agree to the terms and conditions of these services.
+
+For more information about the service, please visit [TrustistEcommerce.com](https://www.trustistecommerce.com) and [TrustistTransfer.com](https://www.trustisttransfer.com).
+
+To review the terms of use and privacy policies of the service, please visit [TrustistEcommerce Terms of Use](https://www.trustistecommerce.com/terms-and-conditions/) and [Trustist Privacy Policy](https://www.trustist.com/privacy-policy/).
 
 == Installation ==
 

@@ -240,30 +240,27 @@ class WC_TrustistSubscriptions extends WC_Payment_Gateway
         if ($order->has_status('completed') || $order->has_status('processing')) {
             $redirect_checkout = $this->get_return_url($order);
         }
-
         if (empty($redirect_checkout)) {
             $payment_id = $order->get_meta('payment_id');
 
             $payment = trustist_payment_get_subscription($payment_id, $this->is_testmode());
 
             if ($payment['status'] === 'COMPLETE' || $payment['status'] === 'ACTIVE') {
-                $order->payment_complete();
-                $order->add_order_note(
-                    'Payment completed successfully. Payment ID: ' . $payment["id"]
-                );
+            $order->payment_complete();
+            $order->add_order_note(
+                'Payment completed successfully. Payment ID: ' . $payment["id"]
+            );
 
-                // Remove cart
-                $woocommerce->cart->empty_cart();
+            // Remove cart
+            $woocommerce->cart->empty_cart();
 
-                $redirect_checkout = $this->get_return_url($order);
+            $redirect_checkout = $this->get_return_url($order);
             } else {
-                $redirect_checkout = $this->checkout_url();
+            $redirect_checkout = $this->checkout_url();
             }
         }
 
-        header('HTTP/1.1 200 OK');
-        echo '<script>location.replace("' . $redirect_checkout . '");</script>';
-        echo '<noscript><meta http-equiv="refresh" content="2; url=' . $redirect_checkout . '">Redirecting..</noscript>';
+        wp_redirect($redirect_checkout);
         exit;
     }
 

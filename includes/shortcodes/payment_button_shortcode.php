@@ -17,6 +17,7 @@ function trustist_payment_button_shortcode($atts) {
     
     // Generate the button HTML
     $html = '<button class="trustist-payment-button" ' .
+                'data-nonce="' . wp_create_nonce(TRUSTISTPLUGIN_NONCE_HANDLE) . '" ' .
                 'data-price="' . esc_attr($atts['price']) . '" ' .
                 'data-order-number="' . esc_attr($atts['order_number']) . '" ' .
                 'data-test="' . esc_attr($atts['test']) . '" ' .
@@ -55,6 +56,11 @@ add_action('wp_ajax_nopriv_process_payment', 'trustist_payment_plugin_process_pa
 
 // Function to handle the payment processing
 function trustist_payment_plugin_process_payment() {
+    // validate the nonce
+    if (!wp_verify_nonce($_POST['nonce'], TRUSTISTPLUGIN_NONCE_HANDLE)) {
+        die('Nonce error');
+    }
+
     // Validate request, interact with payment API, etc.
     $price = isset($_POST['price']) ? sanitize_text_field($_POST['price']) : '';
     $returnUrl = isset($_POST['returnUrl']) ? sanitize_text_field($_POST['returnUrl']) : '';

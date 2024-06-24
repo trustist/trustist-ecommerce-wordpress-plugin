@@ -198,9 +198,7 @@ class WC_TrustistEcommerce extends WC_Payment_Gateway
             }
         }
 
-        header('HTTP/1.1 200 OK');
-        echo '<script>location.replace("' . $redirect_checkout . '");</script>';
-        echo '<noscript><meta http-equiv="refresh" content="2; url=' . $redirect_checkout . '">Redirecting..</noscript>';
+        wp_redirect($redirect_checkout);
         exit;
     }
 

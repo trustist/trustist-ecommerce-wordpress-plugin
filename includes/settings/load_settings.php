@@ -172,22 +172,20 @@ function trustist_payments_settings_page()
             </p>
         </form>
     </div>
-    <style>
-        input[type=text] {
+<?php
+
+add_action( 'wp_enqueue_scripts', function() {
+    wp_register_style( 'trustist-payments-settings-styles', false );
+    wp_enqueue_style( 'trustist-payments-settings-styles' );
+    wp_add_inline_style( 'trustist-payments-settings-styles', 'input[type=text] { 
             width: 420px !important;
-            padding: 4px 8px !important;
-        }
-
-        th {
+            padding: 4px 8px !important; }' );
+    wp_add_inline_style( 'trustist-payments-settings-styles', 'th {
             width: 140px !important;
-            vertical-align: middle !important;
-        }
-
-        h2:first-of-type {
-            font-size: 1.5em !important;
-        }
-
-        .tr-button-primary {
+            vertical-align: middle !important; }' );
+    wp_add_inline_style( 'trustist-payments-settings-styles', 'h2:first-of-type {
+            font-size: 1.5em !important; }' );
+    wp_add_inline_style( 'trustist-payments-settings-styles', '.tr-button-primary {
             width: 580px !important;
             height: 40px !important;
             border-radius: 10px 10px 10px 10px !important;
@@ -195,10 +193,8 @@ function trustist_payments_settings_page()
             color: #0f1111 !important;
             border: none !important;
             font-weight: 500 !important;
-            font-size: 1.2em !important;
-        }
-    </style>
-<?php
+            font-size: 1.2em !important; }' );
+});
 }
 
 // Hook into the appropriate actions to register the settings and add the settings page

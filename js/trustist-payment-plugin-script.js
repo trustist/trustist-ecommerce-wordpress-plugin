@@ -5,6 +5,7 @@ jQuery(document).ready(function ($) {
     // Add a spinner here as needed
 
     // Retrieve the price from the data attribute
+    var nonce = $(this).data("nonce");
     var price = $(this).data("price");
     var returnUrl = $(this).data("return-url");
     var orderNumber = $(this).data("order-number");
@@ -19,7 +20,8 @@ jQuery(document).ready(function ($) {
         price,
         returnUrl,
         orderNumber,
-        test
+        test,
+        nonce,
       },
       success: function (response) {
         window.location.href = response.data.paylink;

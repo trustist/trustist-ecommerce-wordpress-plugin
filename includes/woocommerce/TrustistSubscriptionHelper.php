@@ -1,5 +1,5 @@
 <?php
-class WCTrustistSubscriptionHelper {
+class TrustistWCSubscriptionHelper {
     /**
      * Get the subscription for a renewal order
      *

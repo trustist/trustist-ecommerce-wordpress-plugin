@@ -2,7 +2,7 @@
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 
-class WC_TrustistEcommerce_Blocks_Support extends AbstractPaymentMethodType
+class TrustistEcommerce_WC_Blocks_Support extends AbstractPaymentMethodType
 {
     protected $name = 'trustistecommerce_payment_gateway';
 

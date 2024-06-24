@@ -2,7 +2,7 @@
 
 defined('ABSPATH') || die();
 
-class WC_TrustistEcommerce extends WC_Payment_Gateway
+class TrustistEcommerce_WC extends WC_Payment_Gateway
 {
     // Constructor for initializing the payment gateway
     public function __construct()

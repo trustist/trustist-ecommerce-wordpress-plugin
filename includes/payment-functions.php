@@ -1,9 +1,11 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; 
+
 use GuzzleHttp\Client;
 use Shawm11\Hawk\Client\Client as HawkClient;
 use Shawm11\Hawk\Client\ClientException as HawkClientException;
 
-$client = new Client();
+$trustist_payments_http_client = new Client();
 
 function trustist_payment_create_hawk_client()
 {
@@ -28,7 +30,7 @@ function trustist_payment_get_credentials($test = false)
 
 function trustist_payment_send_request($method, $url, $payload = null, $test = false)
 {
-    global $client;
+    global $trustist_payments_http_client;
 
     $hawkClient = trustist_payment_create_hawk_client();
     $options = [
@@ -48,7 +50,7 @@ function trustist_payment_send_request($method, $url, $payload = null, $test = f
 
     $header = $result['header'];
 
-    $response = $client->request($method, $base_uri . $url, [
+    $response = $trustist_payments_http_client->request($method, $base_uri . $url, [
         'headers' => [
             'Authorization' => $header,
             'Content-Type' => 'application/json'

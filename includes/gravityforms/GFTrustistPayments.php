@@ -296,7 +296,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         }
 
         $form = $this->get_current_form();
-        return apply_filters('gform_trustist_feed_settings_fields', $default_settings, $form);
+        return apply_filters('trustist_gform_feed_settings_fields', $default_settings, $form);
     }
 
 
@@ -321,7 +321,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         ob_start(); ?>
         <div id='gf_trustist_custom_settings'>
             <?php
-            do_action('gform_trustist_add_option_group', $this->get_current_feed(), $this->get_current_form()); ?>
+            do_action('trustist_gform_add_option_group', $this->get_current_feed(), $this->get_current_form()); ?>
         </div>
 
         <?php
@@ -428,13 +428,13 @@ class GFTrustistPayments extends GFPaymentAddOn
         $settings['type'] = $settings['transactionType'];
 
         $feed['meta'] = $settings;
-        $feed = apply_filters('gform_trustist_save_config', $feed);
+        $feed = apply_filters('trustist_gform_save_config', $feed);
 
         if (!empty($feed['meta']['test_mode']) && 1 === (int) $feed['meta']['test_mode']) {
             unset($feed['meta']['sandbox_mode']);
         }
 
-        $is_validation_error = apply_filters('gform_trustist_config_validation', false, $feed);
+        $is_validation_error = apply_filters('trustist_gform_config_validation', false, $feed);
         if ($is_validation_error) {
             return false;
         }
@@ -546,7 +546,7 @@ class GFTrustistPayments extends GFPaymentAddOn
         $pageURL = GFCommon::is_ssl() ? 'https://' : 'http://';
     
         // Sanitize SERVER_PORT
-        $server_port = apply_filters('gform_trustist_return_url_port', sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT'])));
+        $server_port = apply_filters('trustist_gform_return_url_port', sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT'])));
     
         // Sanitize SERVER_NAME
         $server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : '';
@@ -568,14 +568,14 @@ class GFTrustistPayments extends GFPaymentAddOn
     
         $query = 'gf_tr_return=' . base64_encode($ids_query);
     
-        return apply_filters('gform_trustist_return_url', $url, $form_id, $entry_id, $query);
+        return apply_filters('trustist_gform_return_url', $url, $form_id, $entry_id, $query);
     }
     
     public function get_payment_feed($entry, $form = false)
     {
         $feed = parent::get_payment_feed($entry, $form);
         $fid = isset($entry['form_id']) ? GFAPI::get_form($entry['form_id']) : '';
-        $feed = apply_filters('gform_trustist_get_payment_feed', $feed, $entry, $form ?: $fid);
+        $feed = apply_filters('trustist_gform_get_payment_feed', $feed, $entry, $form ?: $fid);
 
         return $feed;
     }

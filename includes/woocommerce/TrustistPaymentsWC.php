@@ -26,8 +26,7 @@ class TrustistEcommerce_WC extends WC_Payment_Gateway
         $icon = TRUSTISTPLUGIN_URL . ($cards_enabled ? 'img/Trustist-all-payment-methods_full.png' : 'img/Trustist-star-icon-150x150.png');
         $this->icon = apply_filters('woocommerce_gateway_icon', $icon);
 
-        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-        add_action('woocommerce_api_' . $this->id, array($this, 'process_response'));
+        add_action('woocommerce_api_' . $this->id, array($this, 'trustist_payments_process_response'));
     }
 
     // Initialize settings fields
@@ -162,7 +161,7 @@ class TrustistEcommerce_WC extends WC_Payment_Gateway
         );
     }
 
-    public function process_response()
+    public function trustist_payments_process_response()
     {
         global $woocommerce;
 

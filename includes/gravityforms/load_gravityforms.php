@@ -8,8 +8,8 @@ final class TrustistPaymentsGFM
         add_action('gform_loaded', function () {
             if (class_exists('GFFormDisplay')) {
                 GFForms::include_payment_addon_framework();
-                require_once __DIR__ . '/GFTrustistPayments.php';
-                GFAddOn::register('GFTrustistPayments');
+                require_once __DIR__ . '/TrustistGFPayments.php';
+                GFAddOn::register('TrustistGFPayments');
             }
         });
     }

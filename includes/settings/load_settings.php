@@ -2,7 +2,7 @@
 
 defined('ABSPATH') || exit;
 
-require_once plugin_dir_path( __FILE__ ) . 'TrustistPaymentsSettings.php';
+require_once plugin_dir_path(__FILE__) . 'TrustistPaymentsSettings.php';
 
 // Define a function to register the settings
 function trustist_payments_register_settings()
@@ -105,8 +105,9 @@ function trustist_payments_sandbox_test_callback()
             </tr>
             <?php if ($sandbox_connection_success) { ?>
                 <tr>
-                    <th scope="row">Merchant name</th><td>
-                    <?php echo esc_html($sandbox_merchant_name); ?></td>
+                    <th scope="row">Merchant name</th>
+                    <td>
+                        <?php echo esc_html($sandbox_merchant_name); ?></td>
                 </tr>
                 <tr>
                     <th scope="row">Cards enabled</th>
@@ -158,10 +159,10 @@ function trustist_payments_add_settings_page()
 // Callback function for the settings page
 function trustist_payments_settings_page()
 {
-    ?>
+?>
     <div class="wrap">
         <img src="<?php echo TRUSTISTPLUGIN_URL ?>/img/Trustist-E-Commerce-01-2048x1059.png" width="220">
-        <form method="post" action="options.php">
+        <form method="post" action="options.php" id="frmTrustistPaymentSettings">
             <?php
             settings_fields('trustist_payments_settings');
             do_settings_sections('trustist_payments');
@@ -173,28 +174,6 @@ function trustist_payments_settings_page()
         </form>
     </div>
 <?php
-
-add_action( 'wp_enqueue_scripts', function() {
-    wp_register_style( 'trustist-payments-settings-styles', false );
-    wp_enqueue_style( 'trustist-payments-settings-styles' );
-    wp_add_inline_style( 'trustist-payments-settings-styles', 'input[type=text] { 
-            width: 420px !important;
-            padding: 4px 8px !important; }' );
-    wp_add_inline_style( 'trustist-payments-settings-styles', 'th {
-            width: 140px !important;
-            vertical-align: middle !important; }' );
-    wp_add_inline_style( 'trustist-payments-settings-styles', 'h2:first-of-type {
-            font-size: 1.5em !important; }' );
-    wp_add_inline_style( 'trustist-payments-settings-styles', '.tr-button-primary {
-            width: 580px !important;
-            height: 40px !important;
-            border-radius: 10px 10px 10px 10px !important;
-            background-color: #FF7100 !important;
-            color: #0f1111 !important;
-            border: none !important;
-            font-weight: 500 !important;
-            font-size: 1.2em !important; }' );
-});
 }
 
 // Hook into the appropriate actions to register the settings and add the settings page
@@ -205,8 +184,10 @@ function trustist_payments_api_keys_updated($option)
 {
     trustist_payment_write_log($option . ' updated');
 
-    if ($option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PUBLIC_API_KEY_KEY, false) || 
-        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PRIVATE_API_KEY_KEY, false)) {
+    if (
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PUBLIC_API_KEY_KEY, false) ||
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PRIVATE_API_KEY_KEY, false)
+    ) {
         TrustistPaymentsSettings::set(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_LAST_UPDATED_KEY, time(), false);
 
         try {
@@ -249,8 +230,10 @@ function trustist_payments_api_keys_updated($option)
         }
     }
 
-    if ($option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PUBLIC_API_KEY_KEY, true) || 
-        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PRIVATE_API_KEY_KEY, true)) {
+    if (
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PUBLIC_API_KEY_KEY, true) ||
+        $option === TrustistPaymentsSettings::fullyQualifiedKey(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_PRIVATE_API_KEY_KEY, true)
+    ) {
         TrustistPaymentsSettings::set(TrustistPaymentsSettings::TRUSTIST_PAYMENTS_LAST_UPDATED_KEY, time(), true);
 
         try {
@@ -293,6 +276,48 @@ function trustist_payments_api_keys_updated($option)
     }
 }
 
-add_action('added_option', 'trustist_payments_api_keys_updatedapi_keys_updated', 10, 3);
-add_action('updated_option', 'trustist_payments_api_keys_updatedapi_keys_updated', 10, 3);
+add_action('added_option', 'trustist_payments_api_keys_updated', 10, 3);
+add_action('updated_option', 'trustist_payments_api_keys_updated', 10, 3);
+
+function trustist_payments_enqueue_admin_styles()
+{
+    $screen = get_current_screen();
+
+    // Only add styles on the Trustist payments settings page
+    if ($screen->id === 'settings_page_trustist_payments') {
+        wp_register_style('trustist-payments-settings-styles', false);
+        wp_enqueue_style('trustist-payments-settings-styles');
+
+        $custom_css = '
+            #frmTrustistPaymentSettings input[type=text] {
+                width: 420px !important;
+                padding: 4px 8px !important;
+            }
+            #frmTrustistPaymentSettings th {
+                width: 140px !important;
+                vertical-align: middle !important;
+            }
+            #frmTrustistPaymentSettings h2:first-of-type {
+                font-size: 1.5em !important;
+            }
+            #frmTrustistPaymentSettings .tr-button-primary {
+                width: 580px !important;
+                height: 40px !important;
+                border-radius: 10px 10px 10px 10px !important;
+                background-color: #FF7100 !important;
+                color: #0f1111 !important;
+                border: none !important;
+                font-weight: 500 !important;
+                font-size: 1.2em !important;
+            }
+        ';
+
+        wp_add_inline_style('trustist-payments-settings-styles', $custom_css);
+
+        // Debugging: Confirm the function executed
+        error_log('Custom admin styles enqueued');
+    }
+}
+add_action('admin_enqueue_scripts', 'trustist_payments_enqueue_admin_styles');
+
 ?>

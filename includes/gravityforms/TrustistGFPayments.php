@@ -2,7 +2,7 @@
 
 defined('ABSPATH') || die();
 
-class GFTrustistPayments extends GFPaymentAddOn
+class TrustistGFPayments extends GFPaymentAddOn
 {
     protected $_version = TRUSTISTPLUGIN_VERSION;
     protected $_slug = 'trustist-for-gravityforms';
@@ -31,6 +31,9 @@ class GFTrustistPayments extends GFPaymentAddOn
         add_action('wp', array($this, 'maybe_thankyou_page'), 5);
 
         parent::pre_init();
+
+        // Use an instance method instead of a static method
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
     }
 
     public static function get_instance()
@@ -40,6 +43,20 @@ class GFTrustistPayments extends GFPaymentAddOn
         }
 
         return self::$_instance;
+    }
+
+    public function enqueue_scripts($form = '', $is_ajax = false) {
+        // Call the parent method if necessary
+        parent::enqueue_scripts($form, $is_ajax);
+        
+        // Enqueue your custom scripts
+        wp_enqueue_script(
+            'trustistpayments-gravityforms',
+            TRUSTISTPLUGIN_URL . 'js/trustistpayments-gravityforms.js',
+            ['jquery'],
+            TRUSTISTPLUGIN_VERSION,
+            true
+        );
     }
 
     public function note_avatar()
@@ -57,7 +74,6 @@ class GFTrustistPayments extends GFPaymentAddOn
         add_action('gform_payment_transaction_id', [$this, 'admin_edit_payment_transaction_id'], 3, 3);
         add_action('gform_payment_amount', [$this, 'admin_edit_payment_amount'], 3, 3);
         add_action('gform_after_update_entry', [$this, 'admin_update_payment'], 4, 2);
-        add_action('enqeue_scripts', TRUSTISTPLUGIN_URL . 'js/trustistpayments-gravityforms.js', ['jquery'], TRUSTISTPLUGIN_VERSION, true);
     }
 
     public function admin_edit_payment_status($payment_status, $form, $entry)
@@ -544,33 +560,33 @@ class GFTrustistPayments extends GFPaymentAddOn
     private function return_url($form_id, $entry_id)
     {
         $pageURL = GFCommon::is_ssl() ? 'https://' : 'http://';
-    
+
         // Sanitize SERVER_PORT
         $server_port = apply_filters('trustist_gform_return_url_port', sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT'])));
-    
+
         // Sanitize SERVER_NAME
         $server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : '';
-    
+
         // Sanitize REQUEST_URI
         $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash($_SERVER['REQUEST_URI'])) : '';
-    
+
         if ($server_port != '80') {
             $pageURL .= $server_name . ':' . $server_port . $request_uri;
         } else {
             $pageURL .= $server_name . $request_uri;
         }
-    
+
         $ids_query = "ids={$form_id}|{$entry_id}";
         $ids_query .= '&hash=' . wp_hash($ids_query);
-    
+
         // Use add_query_arg to safely add query arguments to the URL
         $url = add_query_arg('gf_tr_return', base64_encode($ids_query), $pageURL);
-    
+
         $query = 'gf_tr_return=' . base64_encode($ids_query);
-    
+
         return apply_filters('trustist_gform_return_url', $url, $form_id, $entry_id, $query);
     }
-    
+
     public function get_payment_feed($entry, $form = false)
     {
         $feed = parent::get_payment_feed($entry, $form);

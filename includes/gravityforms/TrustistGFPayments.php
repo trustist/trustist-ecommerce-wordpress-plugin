@@ -311,126 +311,13 @@ class TrustistGFPayments extends GFPaymentAddOn
             }
         }
 
-        $form = $this->get_current_form();
-        return apply_filters('trustist_gform_feed_settings_fields', $default_settings, $form);
+        return $default_settings;
     }
 
 
     public function field_map_title()
     {
         return esc_html__('Trustist Field', 'trustistgfm');
-    }
-
-    public function settings_options($field, $echo = true)
-    {
-        $html = $this->settings_checkbox($field, false);
-
-        if ($echo) {
-            echo wp_kses_post($html);
-        }
-
-        return $html;
-    }
-
-    public function settings_custom($field, $echo = true)
-    {
-        ob_start(); ?>
-        <div id='gf_trustist_custom_settings'>
-            <?php
-            do_action('trustist_gform_add_option_group', $this->get_current_feed(), $this->get_current_form()); ?>
-        </div>
-
-        <?php
-
-        $html = ob_get_clean();
-
-        if ($echo) {
-            echo wp_kses_post($html);
-        }
-
-        return $html;
-    }
-
-    public function settings_notifications($field, $echo = true)
-    {
-        $checkboxes = [
-            'name' => 'delay_notification',
-            'type' => 'checkboxes',
-            'onclick' => 'ToggleNotifications();',
-            'choices' => [
-                [
-                    'label' => esc_html__("Send notifications for the 'Form is submitted' event only when payment is received.", 'trustistgfm'),
-                    'name' => 'delayNotification',
-                ],
-            ],
-        ];
-
-        $html = $this->settings_checkbox($checkboxes, false);
-
-        $html .= $this->settings_hidden(
-            [
-                'name' => 'selectedNotifications',
-                'id' => 'selectedNotifications',
-            ],
-            false
-        );
-
-        $form = $this->get_current_form();
-        $has_delayed_notifications = $this->get_setting('delayNotification');
-        ob_start(); ?>
-        <ul id="gf_trustist_notification_container" style="padding-left:20px; margin-top:10px; <?php echo $has_delayed_notifications ? '' : 'display:none;'; ?>">
-            <?php
-            if (!empty($form) && \is_array($form['notifications'])) {
-                $selected_notifications = $this->get_setting('selectedNotifications');
-                if (!\is_array($selected_notifications)) {
-                    $selected_notifications = [];
-                }
-
-                $notifications = GFCommon::get_notifications('form_submission', $form);
-
-                foreach ($notifications as $notification) {
-            ?>
-                    <li class="gf_trustist_notification">
-                        <input type="checkbox" class="notification_checkbox" value="<?php echo esc_html($notification['id']); ?>" onclick="SaveNotifications();" <?php checked(true, \in_array($notification['id'], $selected_notifications)); ?> />
-                        <label class="inline" for="gf_trustist_selected_notifications"><?php echo esc_html($notification['name']); ?></label>
-                    </li>
-            <?php
-                }
-            } ?>
-        </ul>
-<?php
-
-        $html .= ob_get_clean();
-
-        if ($echo) {
-            echo wp_kses_post($html);
-        }
-
-        return $html;
-    }
-
-    public function checkbox_input_change_post_status($choice, $attributes, $value, $tooltip)
-    {
-        $markup = $this->checkbox_input($choice, $attributes, $value, $tooltip);
-
-        $dropdown_field = [
-            'name' => 'update_post_action',
-            'choices' => [
-                ['label' => ''],
-                [
-                    'label' => esc_html__('Mark Post as Draft', 'trustistgfm'),
-                    'value' => 'draft',
-                ],
-                [
-                    'label' => esc_html__('Delete Post', 'trustistgfm'),
-                    'value' => 'delete',
-                ],
-            ],
-            'onChange' => "var checked = jQuery(this).val() ? 'checked' : false; jQuery('#change_post_status').attr('checked', checked);",
-        ];
-        $markup .= '&nbsp;&nbsp;' . $this->settings_select($dropdown_field, false);
-
-        return $markup;
     }
 
     public function option_choices()
@@ -444,15 +331,9 @@ class TrustistGFPayments extends GFPaymentAddOn
         $settings['type'] = $settings['transactionType'];
 
         $feed['meta'] = $settings;
-        $feed = apply_filters('trustist_gform_save_config', $feed);
 
         if (!empty($feed['meta']['test_mode']) && 1 === (int) $feed['meta']['test_mode']) {
             unset($feed['meta']['sandbox_mode']);
-        }
-
-        $is_validation_error = apply_filters('trustist_gform_config_validation', false, $feed);
-        if ($is_validation_error) {
-            return false;
         }
 
         $settings = $feed['meta'];
@@ -467,9 +348,9 @@ class TrustistGFPayments extends GFPaymentAddOn
     public function redirect_url($feed, $submission_data, $form, $entry)
     {
         // Don't process redirect url if request is a return
-        if (empty($_GET['gf_paystack_return'])) {
+        if (isset($_GET['gf_paystack_return']) && !empty($_GET['gf_paystack_return'])) {
             return false;
-        }
+        }        
 
         $this->log_debug(__METHOD__ . '(): Submission data => ' . print_r($submission_data, true));
 
@@ -557,12 +438,13 @@ class TrustistGFPayments extends GFPaymentAddOn
         // Trim the final string to remove the last space
         return trim($result);
     }
+
     private function return_url($form_id, $entry_id)
     {
         $pageURL = GFCommon::is_ssl() ? 'https://' : 'http://';
 
         // Sanitize SERVER_PORT
-        $server_port = apply_filters('trustist_gform_return_url_port', sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT'])));
+        $server_port = sanitize_text_field(wp_unslash($_SERVER['SERVER_PORT']));
 
         // Sanitize SERVER_NAME
         $server_name = isset($_SERVER['SERVER_NAME']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_NAME'])) : '';
@@ -582,17 +464,12 @@ class TrustistGFPayments extends GFPaymentAddOn
         // Use add_query_arg to safely add query arguments to the URL
         $url = add_query_arg('gf_tr_return', base64_encode($ids_query), $pageURL);
 
-        $query = 'gf_tr_return=' . base64_encode($ids_query);
-
-        return apply_filters('trustist_gform_return_url', $url, $form_id, $entry_id, $query);
+        return $url;
     }
 
     public function get_payment_feed($entry, $form = false)
     {
         $feed = parent::get_payment_feed($entry, $form);
-        $fid = isset($entry['form_id']) ? GFAPI::get_form($entry['form_id']) : '';
-        $feed = apply_filters('trustist_gform_get_payment_feed', $feed, $entry, $form ?: $fid);
-
         return $feed;
     }
 

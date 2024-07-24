@@ -170,7 +170,7 @@ class TrustistSubscriptions_WC extends WC_Payment_Gateway
         }
 
         try {
-            $standingOrderRequest = new StandingOrderRequest(
+            $standingOrderRequest = new TrustistStandingOrderRequest(
                 (float) $price_per_period,
                 (string) $order_id,
                 $description,

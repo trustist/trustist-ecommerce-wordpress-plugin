@@ -380,7 +380,7 @@ class TrustistGFPayments extends GFPaymentAddOn
         try {
             switch ($feed['meta']['transactionType']) {
                 case 'product':
-                    $paymentRequest = new PaymentRequest($total, $orderid, $item_name, $buyer_name, $buyer_email, $redirect_url, $cancel_url);
+                    $paymentRequest = new TrustistPaymentRequest($total, $orderid, $item_name, $buyer_name, $buyer_email, $redirect_url, $cancel_url);
 
                     $this->log_debug(__METHOD__ . '(): Payment request => ' . print_r($paymentRequest, true));
 
@@ -589,7 +589,7 @@ class TrustistGFPayments extends GFPaymentAddOn
         //save payment amount to lead meta
         gform_update_meta($entry_id, 'payment_amount', $payment_amount);
 
-        $standingOrderRequest = new StandingOrderRequest(
+        $standingOrderRequest = new TrustistStandingOrderRequest(
             $payment_amount,
             $entry_id,
             $item_name,

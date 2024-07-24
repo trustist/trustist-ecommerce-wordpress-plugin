@@ -50,7 +50,7 @@ add_action('wp_ajax_nopriv_process_payment', 'trustist_payment_plugin_process_pa
 function trustist_payment_plugin_process_payment()
 {
     // validate the nonce
-    if (!wp_verify_nonce($_POST['nonce'], TRUSTISTPLUGIN_NONCE_HANDLE)) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), TRUSTISTPLUGIN_NONCE_HANDLE)) {
         die('Nonce error');
     }
 
@@ -60,7 +60,7 @@ function trustist_payment_plugin_process_payment()
     $orderNumber = isset($_POST['orderNumber']) ? sanitize_text_field($_POST['orderNumber']) : '';
 
     // create the payment
-    $request = new PaymentRequest($price, $orderNumber, null, null, null, $returnUrl);
+    $request = new TrustistPaymentRequest($price, $orderNumber, null, null, null, $returnUrl);
     $payment = trustist_payment_create_payment($request);
 
     // todo: persist the payment ID rather than rely on the return URL querystring, which is not secure
@@ -99,5 +99,4 @@ function trustist_payment_plugin_enqueue_styles()
     wp_enqueue_style('trustist-plugin-style', plugin_dir_url(__FILE__) . 'css/trustist-payments.css');
 }
 add_action('wp_enqueue_scripts', 'trustist_payment_plugin_enqueue_styles');
-
 ?>

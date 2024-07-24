@@ -161,7 +161,7 @@ function trustist_payments_settings_page()
 {
 ?>
     <div class="wrap">
-        <img src="<?php echo TRUSTISTPLUGIN_URL ?>/img/Trustist-E-Commerce-01-2048x1059.png" width="220">
+        <img src="<?php echo esc_url(TRUSTISTPLUGIN_URL) ?>/img/Trustist-E-Commerce-01-2048x1059.png" width="220">
         <form method="post" action="options.php" id="frmTrustistPaymentSettings">
             <?php
             settings_fields('trustist_payments_settings');

@@ -130,7 +130,7 @@ class TrustistEcommerce_WC extends WC_Payment_Gateway
         }
 
         try {
-            $paymentRequest = new PaymentRequest((float) $total, (string) $order_id, $description, $buyer_name, $buyer_email, $redirect_url);
+            $paymentRequest = new TrustistPaymentRequest((float) $total, (string) $order_id, $description, $buyer_name, $buyer_email, $redirect_url);
             wc_get_logger()->debug(print_r($paymentRequest, true));
 
             $payment = trustist_payment_create_payment($paymentRequest, $this->is_testmode());

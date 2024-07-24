@@ -73,7 +73,7 @@ function trustist_payment_receipt_url($paymentId, $test = false)
     return $url . "/receipt/{$paymentId}";
 }
 
-function trustist_payment_create_payment(PaymentRequest $request, $test = false)
+function trustist_payment_create_payment(TrustistPaymentRequest $request, $test = false)
 {
     $data = $request->toArray();
 
@@ -81,7 +81,7 @@ function trustist_payment_create_payment(PaymentRequest $request, $test = false)
     return trustist_payment_send_request('POST', $url, $data, $test);
 }
 
-function trustist_payment_create_subscription(StandingOrderRequest $request, $test = false)
+function trustist_payment_create_subscription(TrustistStandingOrderRequest $request, $test = false)
 {
     $data = $request->toArray();
 
@@ -117,7 +117,7 @@ function trustist_payment_write_log( $data ) {
     }
 }
 
-class PaymentRequest
+class TrustistPaymentRequest
 {
     private $amount;
     private $reference;
@@ -159,7 +159,7 @@ class PaymentRequest
     }
 }
 
-class StandingOrderRequest
+class TrustistStandingOrderRequest
 {
     private $amount;
     private $reference;

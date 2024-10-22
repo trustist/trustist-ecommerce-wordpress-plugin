@@ -3,7 +3,7 @@
 Plugin Name: TrustistEcommerce
 Plugin URI: https://www.trustistecommerce.com
 Description: Take Open Banking or credit card payments in the UK using TrustistEcommerce.
-Version: 0.3.2
+Version: 1.0.0
 Author: Trustist
 Author URI: https://www.trustist.com
 License: GPLv2
@@ -11,7 +11,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 defined( 'ABSPATH' ) or die();
 
-\define('TRUSTISTPLUGIN_VERSION', '0.3.2');
+\define('TRUSTISTPLUGIN_VERSION', '1.0.0');
 \define('TRUSTISTPLUGIN_SLUG', 'trustistecommerce');
 \define('TRUSTISTPLUGIN_NAME', 'TrustistEcommerce');
 \define('TRUSTISTPLUGIN_FILE', __FILE__);
